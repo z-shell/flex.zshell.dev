@@ -1,0 +1,45 @@
+---
+name: GH Pages
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true  
+          fetch-depth: 0
+#      - name: Trunk it
+#        run: ./trunk check --ci-progress
+#      - name: Hugo setup
+#        uses: peaceiris/actions-hugo@v2.4.13
+#        with:
+#          hugo-version: latest
+#          extended: true
+#      - uses: actions/cache@v2
+#        with:
+#          path: /tmp/hugo_cache
+#          key: ${{ runner.os }}-hugomod-${{ hashFiles('**/go.sum') }}
+#          restore-keys: |
+#            ${{ runner.os }}-hugomod-
+#      - name: Hugo Build
+#        run: hugo --minify
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
+          user_name: digital-teams[bot]
+          user_email: digital-teams@pm.me
